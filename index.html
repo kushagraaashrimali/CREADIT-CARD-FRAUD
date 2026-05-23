@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Credit Card Fraud Detection</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>💳 Credit Card Fraud Detection</h1>
+    <p>Binary Classification: Fraud (1) vs Normal (0)</p>
+
+    <form id="fraudForm">
+      <label for="amount">Transaction Amount:</label>
+      <input type="number" id="amount" name="Amount" required>
+
+
+<div class="clock" id="clock">
+  <!-- Numbers -->
+  <div class="number" style="--i:1">1</div>
+  <div class="number" style="--i:2">2</div>
+  <div class="number" style="--i:3">3</div>
+  <div class="number" style="--i:4">4</div>
+  <div class="number" style="--i:5">5</div>
+  <div class="number" style="--i:6">6</div>
+  <div class="number" style="--i:7">7</div>
+  <div class="number" style="--i:8">8</div>
+  <div class="number" style="--i:9">9</div>
+  <div class="number" style="--i:10">10</div>
+  <div class="number" style="--i:11">11</div>
+  <div class="number" style="--i:12">12</div>
+
+  <!-- Hands -->
+  <div class="hand hour" id="hourHand"></div>
+  <div class="hand minute" id="minuteHand"></div>
+  <div class="center"></div>
+</div>
+
+      <!-- Example feature inputs -->
+      <label for="v1">Feature V1:</label>
+      <input type="number" id="v1" name="V1" required>
+
+      <label for="v2">Feature V2:</label>
+      <input type="number" id="v2" name="V2" required>
+
+      <button type="submit">🔍 Predict Fraud</button>
+    </form>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+const timeInput = document.getElementById("time");
+const hourHand = document.getElementById("hourHand");
+const minuteHand = document.getElementById("minuteHand");
+
+timeInput.addEventListener("input", () => {
+  const [hours, minutes] = timeInput.value.split(":").map(Number);
+
+  const hourAngle = (hours % 12) * 30 + (minutes / 2);
+  const minuteAngle = minutes * 6;
+
+  hourHand.style.transform = `translate(-50%, -100%) rotate(${hourAngle}deg)`;
+  minuteHand.style.transform = `translate(-50%, -100%) rotate(${minuteAngle}deg)`;
+});
+
+
+    document.getElementById("fraudForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const transaction = {};
+      formData.forEach((value, key) => transaction[key] = parseFloat(value));
+
+      const response = await fetch("http://127.0.0.1:8000/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(transaction)
+      });
+
+      const data = await response.json();
+      const prob = (data.fraud_probability * 100).toFixed(2);
+
+      document.getElementById("result").innerHTML =
+        `<h2>Fraud Probability: ${prob}%</h2>` +
+        (prob > 50 ? "<p class='fraud'>⚠️ Potential Fraud Detected!</p>" : "<p class='normal'>✅ Transaction Looks Normal</p>");
+    });
+  </script>
+</body>
+</html>
